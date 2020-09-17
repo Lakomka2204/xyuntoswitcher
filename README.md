@@ -1,7 +1,7 @@
 # xyuntoswitcher
 ![GitHub Logo](/Resources/xyinto.ico)
 
-puntoswitcher in a nutshell ¯\\\_(ツ)\_/¯
+shitty version of puntoswitcher ¯\\\_(ツ)\_/¯
 Its just fixer of wrong language *(only russian to english, иусфгыу нуы)*.
 ## Usage
 Ctrl + Alt - perform changing langs.
