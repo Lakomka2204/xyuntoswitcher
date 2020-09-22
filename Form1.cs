@@ -11,64 +11,74 @@ namespace xyuntoswitcher
 {
     public partial class Form1 : Form
     {
-        readonly Process Pr = Process.GetCurrentProcess();
+        readonly Process pr = Process.GetCurrentProcess();
         bool called = false;
         bool terminating = false;
         public Form1()
         {
             InitializeComponent();
+            Parallel.Invoke(
+                () =>
+                {
+                    cb_alwaysontop.CheckedChanged += (s, e) =>
+                    {
+                        CheckBox cdf = s as CheckBox;
+                        TopMost = cdf.Checked;
+                    };
+
+                },
+                () =>
+                {
+                    ni_tray.DoubleClick += ShowForm;
+                    FormClosing += (s, e) =>
+                    {
+                        if (called & e.CloseReason == CloseReason.UserClosing)
+                        {
+                            DialogResult rde = MessageBox.Show("Text is still translating, do you want to " +
+                                "exit program or just stop translating?\nYes - exit program\nNo - stop translating",
+                                Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                            e.Cancel = rde == DialogResult.Cancel | rde == DialogResult.No;
+                            if (rde == DialogResult.Cancel) return;
+                            if ((rde == DialogResult.No) | (rde == DialogResult.Yes & cb_trayonhide.Checked))
+                            {
+                                terminating = true;
+                                called = rtb_in.ReadOnly = false;
+                            }
+                        }
+                        if (!cb_trayonhide.Checked) return;
+                        e.Cancel = ni_tray.Visible = true;
+                        pr.PriorityClass = ProcessPriorityClass.Idle;
+                        pr.PriorityBoostEnabled = false;
+                        Hide();
+                    };
+
+                },
+                () =>
+                {
+                    SizeChanged += (s, e) =>
+                    {
+                        rtb_in.Size = new Size(rtb_in.Size.Width, (Size.Height - 100) / 2 + 10);
+                        rtb_out.Size = new Size(rtb_out.Size.Width, (Size.Height - 100) / 2 + 10);
+                    };
+
+                },
+                () =>
+                {
+                    cms_opacity.Click += (s, e) =>
+                    {
+                        ChangeOpacity changeOpacity = new ChangeOpacity();
+                        TopMost = false;
+                        changeOpacity.ShowDialog();
+                        TopMost = true;
+                    };
+
+                });
             if (Registry.CurrentUser.OpenSubKey(@"Software\xyintoswitcher") == null)
             {
                 MessageBox.Show("Ctrl + Alt to perform changing langs\nF1 to see this again",
                     Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Registry.CurrentUser.CreateSubKey(@"Software\xyintoswitcher");
             }
-            cb_alwaysontop.CheckedChanged += (s, e) =>
-            {
-                CheckBox cdf = s as CheckBox;
-                TopMost = cdf.Checked;
-            };
-            ni_tray.DoubleClick += ShowForm;
-            FormClosing += (s, e) =>
-            {
-                /*
-                 * terminating = true;
-                 * called = false;
-                 * rtb_in.ReadOnly = false;
-                */
-                if (called & e.CloseReason == CloseReason.UserClosing)
-                {
-                    DialogResult rde = MessageBox.Show("Text is still translating, do you want to exit program or " +
-                        "just stop translating?\nYes - exit program\nNo - stop translating", Text,
-                        MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                    e.Cancel = rde == DialogResult.Cancel | rde == DialogResult.No;
-                    if (rde == DialogResult.Cancel) return;
-                    if ((rde == DialogResult.No) | (rde == DialogResult.Yes & cb_trayonhide.Checked))
-                    {
-                        terminating = true;
-                        called = rtb_in.ReadOnly = false;
-                    }
-                }
-                if (!cb_trayonhide.Checked) return;
-                e.Cancel = true;
-                ni_tray.Visible = true;
-                Pr.PriorityClass = ProcessPriorityClass.Idle;
-                Pr.PriorityBoostEnabled = false;
-                Hide();
-            };
-            SizeChanged += (s, e) =>
-            {
-                rtb_in.Size = new Size(rtb_in.Size.Width, (Size.Height - 100) / 2 + 10);
-                rtb_out.Size = new Size(rtb_out.Size.Width, (Size.Height - 100) / 2 + 10);
-            };
-            cms_opacity.Click += (s, e) =>
-            {
-                ChangeOpacity changeOpacity = new ChangeOpacity();
-                TopMost = false;
-                changeOpacity.ShowDialog();
-                TopMost = true;
-            };
-            rtb_in.TextChanged += (s, e) => Text = rtb_in.TextLength.ToString(); // debug
         }
 
         protected override void OnActivated(EventArgs e)
@@ -93,8 +103,8 @@ namespace xyuntoswitcher
         private void ShowForm(object sender, EventArgs e)
         {
             ni_tray.Visible = false;
-            Pr.PriorityClass = ProcessPriorityClass.Normal;
-            Pr.PriorityBoostEnabled = true;
+            pr.PriorityClass = ProcessPriorityClass.Normal;
+            pr.PriorityBoostEnabled = true;
             Show();
             Focus();
         }
