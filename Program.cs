@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
+using System.IO;
+using System.Reflection;
 
 namespace xyuntoswitcher
 {
@@ -11,6 +14,11 @@ namespace xyuntoswitcher
         [STAThread]
         static void Main()
         {
+            foreach(Process p in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location)))
+            {
+                if (p.Id == Process.GetCurrentProcess().Id) continue;
+                p.Kill();
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.ThreadException += (s, e) =>

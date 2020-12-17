@@ -31,6 +31,7 @@ namespace xyuntoswitcher
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.rtb_in = new System.Windows.Forms.RichTextBox();
             this.rtb_out = new System.Windows.Forms.RichTextBox();
             this.cb_alwaysontop = new System.Windows.Forms.CheckBox();
@@ -117,7 +118,7 @@ namespace xyuntoswitcher
             this.Controls.Add(this.cb_alwaysontop);
             this.Controls.Add(this.rtb_out);
             this.Controls.Add(this.rtb_in);
-            this.Icon = global::xyuntoswitcher.Properties.Resources.xyinto;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(300, 160);
             this.Name = "Form1";
